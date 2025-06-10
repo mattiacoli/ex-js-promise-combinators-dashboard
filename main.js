@@ -99,15 +99,15 @@ async function getDashboardData(query) {
     console.log(destination, weather, airport);
 
     const obj = {
-      city: destination[0].name,
+      city: destination[0] ? destination[0].name : null,
 
-      country: destination[0].country,
+      country: destination[0] ? destination[0].country : null,
 
-      temperature: weather[0].temperature,
+      temperature: weather[0] ? weather[0].temperature : null,
 
-      weather: weather[0].weather_description,
+      weather: weather[0] ? weather[0].weather_description : null,
 
-      airport: airport[0].name
+      airport: airport ? airport[0].name : null
     }
 
     return obj
@@ -121,7 +121,7 @@ async function getDashboardData(query) {
 }
 
 
-getDashboardData('london')
+getDashboardData('vienna')
 
   .then(data => {
 
@@ -129,11 +129,11 @@ getDashboardData('london')
 
     console.log(
 
-      `${data.city} is in ${data.country}.\n` +
+      data.city ? `${data.city} is in ${data.country}.\n` : '',
 
-      `Today there are ${data.temperature} degrees and the weather is ${data.weather}.\n` +
+      data.temperature ? `Today there are ${data.temperature} degrees and the weather is ${data.weather}.\n` : '',
 
-      `The main airport is ${data.airport}.\n`
+      data.airport ? `The main airport is ${data.airport}.\n` : ''
 
     );
 
@@ -141,3 +141,5 @@ getDashboardData('london')
 
 
 
+/* 🎯 Bonus 1 - Risultato vuoto
+Se l’array di ricerca è vuoto, invece di far fallire l'intera funzione, semplicemente i dati relativi a quella chiamata verranno settati a null e  la frase relativa non viene stampata. Testa la funzione con la query “vienna” (non trova il meteo). */
