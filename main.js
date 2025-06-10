@@ -76,40 +76,47 @@ async function fetchJson(url) {
 }
 
 async function getDashboardData(query) {
+
   // start output
   console.log(`Sto scaricando i dati per la query: ${query}`)
 
-  // Promises for city, wheater, airport
-  const destinationsPromise = fetchJson(`http://localhost:3333/destinations?search=${query}`)
-  const weatherPromise = fetchJson(`http://localhost:3333/weathers?search=${query}`)
-  const airportsPromise = fetchJson(`http://localhost:3333/airports?search=${query}`)
+  // error handler try/catch
+  try {
+    // Promises for city, wheater, airport
+    const destinationsPromise = fetchJson(`http://localhost:3333/destinations?search=${query}`)
+    const weatherPromise = fetchJson(`http://localhost:3333/weathers?search=${query}`)
+    const airportsPromise = fetchJson(`http://localhost:3333/airports?search=${query}`)
 
-  // array of promises
-  const promises = [destinationsPromise, weatherPromise, airportsPromise]
+    // array of promises
+    const promises = [destinationsPromise, weatherPromise, airportsPromise]
 
-  const results = await Promise.all(promises)
+    const results = await Promise.all(promises)
 
-  const destination = results[0]
-  const weather = results[1]
-  const airport = results[2]
+    const destination = results[0]
+    const weather = results[1]
+    const airport = results[2]
 
-  console.log(destination, weather, airport);
+    console.log(destination, weather, airport);
 
-  const obj = {
-    city: destination[0].name,
+    const obj = {
+      city: destination[0].name,
 
-    country: destination[0].country,
+      country: destination[0].country,
 
-    temperature: weather[0].temperature,
+      temperature: weather[0].temperature,
 
-    weather: weather[0].weather_description,
+      weather: weather[0].weather_description,
 
-    airport: airport[0].name
+      airport: airport[0].name
+    }
+
+    return obj
+
+  } catch (error) {
+    throw new Error(`impossibile recuperare i dati! ${error.message}`);
+
   }
 
-
-
-  return obj
 
 }
 
