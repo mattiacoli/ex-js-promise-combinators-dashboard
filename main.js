@@ -90,14 +90,23 @@ async function getDashboardData(query) {
     // array of promises
     const promises = [destinationsPromise, weatherPromise, airportsPromise]
 
-    const results = await Promise.all(promises)
+    const results = await Promise.allSettled(promises)
+    // get data from promises
+    const destination = results[0].status === 'fulfilled' ? results[0].value : null
+    const weather = results[1].status === 'fulfilled' ? results[1].value : null
+    const airport = results[2].status === 'fulfilled' ? results[2].value : null
 
-    const destination = results[0]
-    const weather = results[1]
-    const airport = results[2]
+    // messages for errors
+    results.forEach((result, index) => {
+      if (result.status === 'rejected') {
+        const endpoint = ['destination', 'weather', 'airport']
+        throw new Error(`Chiamata a ${endpoint[index]} fallita:  ${result.reason}`)
+      }
+    })
 
     console.log(destination, weather, airport);
 
+    // save obj to return
     const obj = {
       city: destination[0] ? destination[0].name : null,
 
@@ -107,7 +116,7 @@ async function getDashboardData(query) {
 
       weather: weather[0] ? weather[0].weather_description : null,
 
-      airport: airport ? airport[0].name : null
+      airport: airport[0] ? airport[0].name : null
     }
 
     return obj
@@ -121,7 +130,7 @@ async function getDashboardData(query) {
 }
 
 
-getDashboardData('vienna')
+getDashboardData('london')
 
   .then(data => {
 
@@ -141,5 +150,17 @@ getDashboardData('vienna')
 
 
 
-/* 🎯 Bonus 1 - Risultato vuoto
-Se l’array di ricerca è vuoto, invece di far fallire l'intera funzione, semplicemente i dati relativi a quella chiamata verranno settati a null e  la frase relativa non viene stampata. Testa la funzione con la query “vienna” (non trova il meteo). */
+/*
+ 🎯 Bonus 1 - Risultato vuoto
+    Se l’array di ricerca è vuoto, invece di far fallire l'intera funzione, semplicemente i dati relativi a quella chiamata verranno settati a null e  la frase relativa non viene stampata. Testa la funzione con la query “vienna” (non trova il meteo).
+*/
+
+/*
+  🎯 Bonus 2 - Chiamate fallite
+    Attualmente, se una delle chiamate fallisce, **Promise.all()** rigetta l'intera operazione.
+    Modifica `getDashboardData()` per usare **Promise.allSettled()**, in modo che:
+      Se una chiamata fallisce, i dati relativi a quella chiamata verranno settati a null.
+      Stampa in console un messaggio di errore per ogni richiesta fallita.
+      Testa la funzione con un link fittizio per il meteo (es. https://www.meteofittizio.it).
+
+*/
