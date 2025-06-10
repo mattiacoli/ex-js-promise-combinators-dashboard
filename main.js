@@ -51,12 +51,11 @@
 
     temperature: 18,
 
-      weather: "Partly cloudy",
+    weather: "Partly cloudy",
 
     airport: "London Heathrow Airport"
 
   }
-
   ​
 
   // Output in console
@@ -68,3 +67,70 @@
   The main airport is London Heathrow Airport.
 
 */
+
+//funzione di supporto
+async function fetchJson(url) {
+  const response = await fetch(url)
+  const obj = await response.json()
+  return obj
+}
+
+async function getDashboardData(query) {
+  // start output
+  console.log(`Sto scaricando i dati per la query: ${query}`)
+
+  // Promises for city, wheater, airport
+  const destinationsPromise = fetchJson(`http://localhost:3333/destinations?search=${query}`)
+  const weatherPromise = fetchJson(`http://localhost:3333/weathers?search=${query}`)
+  const airportsPromise = fetchJson(`http://localhost:3333/airports?search=${query}`)
+
+  // array of promises
+  const promises = [destinationsPromise, weatherPromise, airportsPromise]
+
+  const results = await Promise.all(promises)
+
+  const destination = results[0]
+  const weather = results[1]
+  const airport = results[2]
+
+  console.log(destination, weather, airport);
+
+  const obj = {
+    city: destination[0].name,
+
+    country: destination[0].country,
+
+    temperature: weather[0].temperature,
+
+    weather: weather[0].weather_description,
+
+    airport: airport[0].name
+  }
+
+
+
+  return obj
+
+}
+
+
+getDashboardData('london')
+
+  .then(data => {
+
+    console.log('Dasboard data:', data);
+
+    console.log(
+
+      `${data.city} is in ${data.country}.\n` +
+
+      `Today there are ${data.temperature} degrees and the weather is ${data.weather}.\n` +
+
+      `The main airport is ${data.airport}.\n`
+
+    );
+
+  }).catch(error => console.error(error));
+
+
+
